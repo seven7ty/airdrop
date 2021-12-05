@@ -3,7 +3,7 @@ import discord
 import logging
 import importlib
 from discord.commands import SlashCommandGroup
-from lib import DATABASE, CONFIG, CRYPTO
+from lib import DATABASE, CONFIG, CRYPTO, DatabaseInterface, AirdropManager
 
 
 class AirdropBot(discord.Bot):
@@ -11,8 +11,9 @@ class AirdropBot(discord.Bot):
         super().__init__(*args, **kwargs)
         self.logger: logging.Logger = logging.getLogger('discord.Client')
         self._configure_logging()
-        self.db = DATABASE
+        self.db: DatabaseInterface = DATABASE
         self.crypto = CRYPTO
+        self.airdrop_manager: AirdropManager = AirdropManager(self)
         self._load_cogs()
         self._load_groups()
 
@@ -31,14 +32,14 @@ class AirdropBot(discord.Bot):
         for filename in os.listdir(os.path.join(CONFIG.root_directory, 'commands/groups')):
             if filename.endswith('.py') and not filename.startswith('_'):
                 module = importlib.import_module(f'commands.groups.{filename[:-3]}')
-                group: SlashCommandGroup = getattr(module, module.__all__[0])
+                group: SlashCommandGroup = getattr(module, module.__all__[0])  # noqa
                 self.add_application_command(group)
                 self.logger.log(logging.INFO, f'Loaded commands.groups.{filename[:-3]}')
 
     async def on_ready(self):
-        self.logger.log(logging.INFO, f'Logged in as {self.user}')
         await self.crypto.setup()
-        print(await self.db.get_user_address(7182379182379128))
+        await self.airdrop_manager.setup()
+        self.logger.log(logging.INFO, f'Logged in as {self.user}')
 
 
-bot = AirdropBot(debug_guilds=[732952864174899230])
+bot = AirdropBot(debug_guild=732952864174899230)

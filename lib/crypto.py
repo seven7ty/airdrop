@@ -14,10 +14,12 @@ class _Crypto:
         self.loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.testnet: bool = CONFIG.use_testnet
         self.rpc_url: str = CONFIG.mainnet_rpc_url if not self.testnet else CONFIG.testnet_rpc_url
+        self.explorer_url: str = CONFIG.mainnet_explorer_url if not self.testnet else CONFIG.testnet_explorer_url
         self.contract_address: EthereumAddress = (CONFIG.mainnet_contract_address if not
                                                   self.testnet else CONFIG.testnet_contract_address)
         self.w3: Web3 = Web3(provider=Web3.HTTPProvider(self.rpc_url))
         self.executor = concurrent.futures.ThreadPoolExecutor()
+        self.transaction_count: int = self.w3.eth.get_transaction_count(CONFIG.env('SPENDING_ADDRESS'))
         self.contract = None
 
     def _run_in_executor(self, func):
@@ -32,27 +34,30 @@ class _Crypto:
     def _transfer_erc20(self,
                         to: EthereumAddress,
                         amount: Union[int, float],
-                        gas_price: int,
-                        gas_limit: int) -> TxHash:
-        tx = self.contract.functions.transfer(to, self.w3.toWei(amount, 'ether')).buildTransaction({
+                        gas_limit: int = 100000) -> TxHash:
+        tx = self.contract.functions.transfer(to, int(amount * 10 ** CONFIG.token_decimals)).buildTransaction({
             'gas': gas_limit,
-            'gasPrice': self.w3.toWei(gas_price, 'gwei'),
-            'nonce': self.w3.eth.get_transaction_count(CONFIG.env('SPENDING_ADDRESS'))
+            'gasPrice': self.w3.eth.gas_price,
+            'nonce': self.transaction_count
         })
-        signed_tx = self.w3.eth.account.signTransaction(tx, CONFIG.env('SPENDING_PRIVATE_KEY'))
+        signed_tx = self.w3.eth.account.sign_transaction(tx, CONFIG.env('SPENDING_PRIVATE_KEY'))
         tx_hash = self.w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        self.transaction_count += 1
         return tx_hash.hex()
 
     async def transfer_erc20(self,
                              to: EthereumAddress,
-                             amount: Union[int, float],
-                             gas_price: int,
-                             gas_limit: int) -> TxHash:
+                             amount: Union[int, float]) -> TxHash:
         return await self._run_in_executor(functools.partial(self._transfer_erc20,
                                                              to=to,
-                                                             amount=amount,
-                                                             gas_price=gas_price,
-                                                             gas_limit=gas_limit))
+                                                             amount=amount))
+
+    def explorer(self, hash_: str, type_: str = 'tx') -> str:
+        return f'{self.explorer_url}/{type_}/{hash_}'
+
+    async def get_erc20_balance(self, address: EthereumAddress) -> float:
+        return round(await self._run_in_executor(
+            lambda: self.contract.functions.balanceOf(address).call()) / 10 ** CONFIG.token_decimals, 18)
 
 
 CRYPTO: _Crypto = _Crypto()

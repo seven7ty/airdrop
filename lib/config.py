@@ -25,7 +25,10 @@ class _Config:
         with open(os.path.join(self.root_directory, 'resources/config.json')) as fp:
             self.raw_config: dict = json.load(fp)
             for k, v in self.raw_config.items():
-                setattr(self, k, v)
+                if isinstance(v, str) and v.startswith('#'):
+                    setattr(self, k, int(v[1:], 16))
+                else:
+                    setattr(self, k, v)
 
     def env(self, key: str) -> Optional[str]:
         return os.environ.get(key)

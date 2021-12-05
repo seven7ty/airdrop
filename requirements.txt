@@ -7,3 +7,4 @@ motor==2.5.1
 dnspython==2.1.0
 certifi==2021.10.8
 uvloop==0.16.0; sys_platform == 'linux'
+pytimeparse==1.1.8
