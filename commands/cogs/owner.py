@@ -73,13 +73,6 @@ class OwnerFacingCommands(commands.Cog):
                                                            color=0xE2586D)
             await ctx.respond(embed=embed_cancelled, ephemeral=True)
         else:
-            embed_confirmed: discord.Embed = discord.Embed(title=':white_check_mark:  Airdrop confirmed!',
-                                                           description='The airdrop will finish in Remember,'
-                                                                       ' you can cancel the airdrop by'
-                                                                       ' right-clicking it and selecting'
-                                                                       ' `Cancel Airdrop`.',
-                                                           color=0x77B255)
-            await ctx.respond(embed=embed_confirmed, ephemeral=True)
             await self.bot.airdrop_manager.new_airdrop(ctx, amount, time, channel=channel)
 
     @discord.message_command(name='Cancel Airdrop')
@@ -111,8 +104,6 @@ class OwnerFacingCommands(commands.Cog):
                 embed_confirmed: discord.Embed = discord.Embed(title=':outbox_tray:  Airdrop cancelled!',
                                                                description=f'The airdrop was **cancelled.**',
                                                                color=CONFIG.token_color)
-                embed_confirmed.set_footer(text=f'I notified the entrants about the cancellation via DMs',
-                                           icon_url=self.bot.user.avatar.url)
                 await ctx.respond(embed=embed_confirmed, ephemeral=True)
                 await self.bot.airdrop_manager.cancel(airdrop)
 

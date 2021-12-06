@@ -120,7 +120,7 @@ class Airdrop:
                 continue
             logger.log(logging.INFO, f'Sending {self.split}{CONFIG.token_symbol}'
                                      f' to {address} from airdrop {self.message_id}')
-            tx_hash: TxHash = await CRYPTO.transfer_erc20(address, self.split)
+            tx_hash: TxHash = await CRYPTO.transfer_erc20(address, CRYPTO.to_contract_value(self.split))
             embed: discord.Embed = discord.Embed(title=':tada:  Airdrop finished!',
                                                  description=f'You **received your share** of `{self.split}'
                                                              f'{CONFIG.token_symbol}` from an airdrop!\n'

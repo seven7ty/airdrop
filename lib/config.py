@@ -30,6 +30,9 @@ class _Config:
                 else:
                     setattr(self, k, v)
 
+    def get(self, key: str) -> Optional[str]:
+        return self.raw_config.get(key)
+
     def env(self, key: str) -> Optional[str]:
         return os.environ.get(key)
 

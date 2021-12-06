@@ -1,6 +1,6 @@
 from .config import CONFIG
 from .db import *
-from .crypto import CRYPTO
+from .crypto import *
 from .regex import *
 from .reusable_responses import *
 from .utils import *

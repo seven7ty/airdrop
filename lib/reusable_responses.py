@@ -7,7 +7,7 @@ from . import CONFIG
 
 __all__: tuple = ('invalid_address', 'no_associated_address_you',
                   'tip_notification', 'no_associated_address_user',
-                  'invalid_duration')
+                  'invalid_duration', 'insufficient_funds')
 
 
 async def invalid_address(ctx: ApplicationContext):
@@ -47,8 +47,7 @@ async def no_associated_address_user(ctx: ApplicationContext, user: discord.Memb
 
 async def tip_notification(ctx: ApplicationContext, user: discord.Member, amount: Union[int, float], tx_hash: 'TxHash'):
     embed: discord.Embed = discord.Embed(title=':tada:  You received a tip!',
-                                         description=f'You **have been tipped** `{amount}{CONFIG.token_symbol}`'
-                                                     f' by {ctx.author.mention}!',
+                                         description=f'You **have been tipped** `{amount}{CONFIG.token_symbol}`'                                                     f' by {ctx.author.mention}!',
                                          color=0xec850a,
                                          url=ctx.bot.crypto.explorer(tx_hash))  # noqa
     embed.add_field(name='Transaction Hash', value=f'```c\n{tx_hash}```')
@@ -60,5 +59,12 @@ async def invalid_duration(ctx: ApplicationContext):
     embed: discord.Embed = discord.Embed(title='Uh oh!',
                                          description=f'That\'s **not a valid duration.**\n'
                                                      f'You can see supported formats [here](https://bit.ly/3IdJBSP)',
+                                         color=discord.Color.red())
+    await ctx.respond(embed=embed, ephemeral=True)
+
+
+async def insufficient_funds(ctx: ApplicationContext, amount: Union[int, float]):
+    embed: discord.Embed = discord.Embed(title='Uh oh!',
+                                         description=f'You **don\'t have enough funds** to send a TX with `{amount}{CONFIG.token_symbol}`!',
                                          color=discord.Color.red())
     await ctx.respond(embed=embed, ephemeral=True)

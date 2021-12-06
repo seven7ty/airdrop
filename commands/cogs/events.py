@@ -1,3 +1,4 @@
+import logging
 import discord
 from discord.ext import commands
 from bot import AirdropBot
@@ -18,6 +19,8 @@ class EventHandler(commands.Cog):
                     if (type_ := AirDropInteractionType(custom_id)) is AirDropInteractionType.JOIN:
                         airdrop: Airdrop = self.bot.airdrop_manager.get_airdrop(interaction.message.id)
                         await airdrop.join(interaction)
+                    else:
+                        self.bot.logger.log(logging.WARNING, f'Unknown long-lasting interaction type: {type_}')
         except discord.NotFound:
             pass
 

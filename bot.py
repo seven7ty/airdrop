@@ -6,9 +6,13 @@ from discord.commands import SlashCommandGroup
 from lib import DATABASE, CONFIG, CRYPTO, DatabaseInterface, AirdropManager
 
 
+INTENTS: discord.Intents = discord.Intents.default()
+INTENTS.members = True  # noqa
+
+
 class AirdropBot(discord.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, intents=INTENTS)
         self.logger: logging.Logger = logging.getLogger('discord.Client')
         self._configure_logging()
         self.db: DatabaseInterface = DATABASE
@@ -37,7 +41,6 @@ class AirdropBot(discord.Bot):
                 self.logger.log(logging.INFO, f'Loaded commands.groups.{filename[:-3]}')
 
     async def on_ready(self):
-        await self.crypto.setup()
         await self.airdrop_manager.setup()
         self.logger.log(logging.INFO, f'Logged in as {self.user}')
 

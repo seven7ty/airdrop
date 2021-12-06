@@ -1,7 +1,7 @@
 import discord
 from discord.commands import SlashCommandGroup, Option, ApplicationContext
 from lib.types import EthereumAddress
-from lib import (CONFIG, ETH_ADDRESS_RE,
+from lib import (CONFIG, DATABASE, CRYPTO, ETH_ADDRESS_RE,
                  no_associated_address_user, invalid_address,
                  shorten_address, no_associated_address_you)
 
@@ -24,9 +24,9 @@ async def balance_command(ctx: ApplicationContext,
         address: str = '0x' + address
     embed: discord.Embed = discord.Embed(title=f':money_with_wings:  {CONFIG.token_symbol} balance'
                                                f' of `{shorten_address(address)}`',
-                                         url=ctx.bot.crypto.explorer(address, 'address'),
+                                         url=CRYPTO.explorer(address, 'address'),
                                          color=0xec850a,
-                                         description=f'```c\n{await ctx.bot.crypto.get_erc20_balance(address)}'
+                                         description=f'```c\n{await CRYPTO.get_erc20_balance(address)}'
                                                      f' {CONFIG.token_symbol}```')
     embed.set_footer(text='You can tap the title to view the address on blockchain explorer!',
                      icon_url=ctx.bot.user.avatar.url)
@@ -42,7 +42,7 @@ async def balance_command(ctx: ApplicationContext,
     if not user:
         user = ctx.author
     user_str: str = user.name + "'s" if not user.id == ctx.author.id else 'Your'
-    address: EthereumAddress = await ctx.bot.db.get_user_address(user.id)
+    address: EthereumAddress = await DATABASE.get_user_address(user.id)
     if not address:
         if is_author:
             await no_associated_address_you(ctx)
@@ -50,9 +50,9 @@ async def balance_command(ctx: ApplicationContext,
             await no_associated_address_user(ctx, user)
         return
     embed: discord.Embed = discord.Embed(title=f':money_with_wings:  {user_str} {CONFIG.token_symbol} balance',
-                                         url=ctx.bot.crypto.explorer(address, 'address'),
+                                         url=CRYPTO.explorer(address, 'address'),
                                          color=0xec850a,
-                                         description=f'```c\n{await ctx.bot.crypto.get_erc20_balance(address)}'
+                                         description=f'```c\n{await CRYPTO.get_erc20_balance(address)}'
                                                      f' {CONFIG.token_symbol}```')
     embed.set_footer(text='You can tap the title to view the address on blockchain explorer!',
                      icon_url=ctx.bot.user.avatar.url)
