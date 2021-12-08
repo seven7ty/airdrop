@@ -12,13 +12,13 @@ INTENTS.members = True  # noqa
 
 class AirdropBot(discord.Bot):
     def __init__(self, *args, **kwargs):
+        self.config: CONFIG = CONFIG
+        self.config.reload()
         super().__init__(*args, **kwargs, intents=INTENTS)
         self.logger: logging.Logger = logging.getLogger('discord.Client')
         self._configure_logging()
         self.db: DatabaseInterface = DATABASE
         self.crypto = CRYPTO
-        self.config: CONFIG = CONFIG
-        self.config.reload()
         self.airdrop_manager: AirdropManager = AirdropManager(self)
         self._load_cogs()
         self._load_groups()
@@ -47,4 +47,4 @@ class AirdropBot(discord.Bot):
         self.logger.log(logging.INFO, f'Logged in as {self.user}')
 
 
-bot = AirdropBot(debug_guild=CONFIG.debug_guild)
+bot = AirdropBot(debug_guild=CONFIG.debug_guild, owner_ids=CONFIG.admins)

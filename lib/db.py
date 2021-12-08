@@ -1,4 +1,5 @@
 import discord
+import urllib.parse
 from . import CONFIG
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from lib.types import EthereumAddress
@@ -9,7 +10,7 @@ __all__: tuple = ('DATABASE', 'DatabaseInterface')
 
 class _DatabaseClient(AsyncIOMotorClient):
     def __init__(self):
-        self._uri: str = f'mongodb+srv://{CONFIG.env("DB_USER")}:{CONFIG.env("DB_PASS")}@{CONFIG.env("DB_HOST")}'
+        self._uri: str = f'mongodb+srv://{CONFIG.env("DB_USER")}:{urllib.parse.quote_plus(CONFIG.env("DB_PASS"))}@{CONFIG.env("DB_HOST")}'
         super().__init__(self._uri)
 
 

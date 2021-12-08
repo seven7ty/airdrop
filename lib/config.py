@@ -27,21 +27,23 @@ class _Config:
                 with open(os.path.join(self.root_directory, f'resources/config/{filename}')) as fp:
                     raw_config_append: dict = json.load(fp)
                     for k, v in self.raw_config.items():
-                        print(k)
                         if isinstance(v, str) and v.startswith('#'):
-                            setattr(self, k, int(v[1:], 16))
+                            setattr(self, k.casefold(), int(v[1:], 16))
                         else:
-                            setattr(self, k, v)
+                            setattr(self, k.casefold(), v)
                     self.raw_config.update(raw_config_append)
 
     def reload(self):
         self._load_config()
 
     def get(self, key: str) -> Optional[str]:
-        return self.raw_config.get(key)
+        return self.raw_config.get(key.casefold())
 
     def env(self, key: str) -> Optional[str]:
         return os.environ.get(key)
+
+    def __getattr__(self, item):
+        return self.get(item)
 
 
 CONFIG: _Config = _Config()
