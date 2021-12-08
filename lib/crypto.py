@@ -25,13 +25,14 @@ class _Crypto:
         self.contract_address: EthereumAddress = (CONFIG.mainnet_contract_address if not
                                                   self.testnet else CONFIG.testnet_contract_address)
         self.w3: Web3 = Web3(provider=Web3.HTTPProvider(self.rpc_url))
+        self.spending_address: EthereumAddress = self.w3.toChecksumAddress(CONFIG.env('SPENDING_ADDRESS'))
         self.executor = concurrent.futures.ThreadPoolExecutor()
-        self.transaction_count: int = self.w3.eth.get_transaction_count(CONFIG.env('SPENDING_ADDRESS'))
+        self.transaction_count: int = self.w3.eth.get_transaction_count(self.spending_address)
         self.contract = self.w3.eth.contract(self.w3.toChecksumAddress(self.contract_address), abi=CONFIG.abi)
         self.decimals: int = CONFIG.get('token_decimals') or self.contract.functions.decimals().call()
 
     async def spending_balance(self) -> int:
-        return await self.get_erc20_balance(CONFIG.env('SPENDING_ADDRESS'))
+        return await self.get_erc20_balance(self.spending_address)
 
     async def can_afford(self, amount: Union[int, float]) -> bool:
         return await self.spending_balance() >= amount
