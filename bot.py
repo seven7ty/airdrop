@@ -17,6 +17,8 @@ class AirdropBot(discord.Bot):
         self._configure_logging()
         self.db: DatabaseInterface = DATABASE
         self.crypto = CRYPTO
+        self.config: CONFIG = CONFIG
+        self.config.reload()
         self.airdrop_manager: AirdropManager = AirdropManager(self)
         self._load_cogs()
         self._load_groups()
@@ -45,4 +47,4 @@ class AirdropBot(discord.Bot):
         self.logger.log(logging.INFO, f'Logged in as {self.user}')
 
 
-bot = AirdropBot(debug_guild=732952864174899230)
+bot = AirdropBot(debug_guild=CONFIG.debug_guild)

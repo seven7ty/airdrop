@@ -1,0 +1,7 @@
+{
+  "use_testnet": true,
+  "mainnet_rpc_url": "https://polygon-rpc.com",
+  "testnet_rpc_url": "https://rpc-mumbai.maticvigil.com/",
+  "mainnet_explorer_url": "https://polygonscan.com/",
+  "testnet_explorer_url": "https://mumbai.polygonscan.com/"
+}
